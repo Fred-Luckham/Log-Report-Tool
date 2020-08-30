@@ -1,0 +1,35 @@
+import re       #for regular expressions - to match items in logs
+import sys
+from collections import Counter
+
+findpattern = re.compile(r'.*(?<=kernel:\s)(?P<protocol>.*)(?=:).*((\sSRC.*?=)(?P<src>[0-9a-f\.]*)).*((\sDST.*?=)(?P<dst>[0-9a-f\.]*)).*')
+LINE_FORMAT='{0:<20.20} {1:<25.25} {2:<25.25} {3}' 
+logfile = "SotM30-anton.log"
+searchterm = input("Enter a search term: ")
+original_stdout = sys.stdout
+
+def process_log_file(logfile):
+    # Process file line by line
+    with open("SotM34/iptables/iptablesyslog", 'r') as data :
+        seen = Counter()
+
+        # Find all lines with search term and append them in a list
+        for line in data :
+
+            # If line has search term, check it for more
+            if searchterm in line :
+
+                seen.update(findpattern.findall(line))
+    return seen
+
+def print_counter(counter):
+    with open('searchoutput.txt', 'w') as f:
+        sys.stdout = f
+        print(LINE_FORMAT.format('-protocol-', '-source-', '-destination-', '-hitcount-'))
+        for (protocol, _, _, src, _, _, dst), count in counter.most_common():
+            sys.stdout = f
+            print(LINE_FORMAT.format(protocol, "  "+src, dst, count))
+        sys.stdout = original_stdout
+
+search_counter = process_log_file(logfile)
+print_counter(search_counter)
