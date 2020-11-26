@@ -1,1 +1,0 @@
-iptables:r'.*(?<=kernel:\s)(?P<protocol>.*)(?=:).*((\sSRC.*?=)(?P<src>[0-9a-f\.]*)).*((\sDST.*?=)(?P<dst>[0-9a-f\.]*)).*'
